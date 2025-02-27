@@ -8,6 +8,7 @@ from config import Config
 from capture import TwitchCapture
 from context import ContextManager
 from llm import ImageAnalyzer
+from tweet import TwitterPoster
 
 # Configure logging
 os.makedirs("logs", exist_ok=True)
@@ -41,6 +42,20 @@ def main():
 	twitch = TwitchCapture(twitch_channel, images_dir)
 	context = ContextManager(context_file)
 	analyzer = ImageAnalyzer(config.get("openrouter_api_key"), model)
+
+	# Initialize Twitter poster if enabled
+	twitter_enabled = config.get("twitter_enabled", False)
+	twitter = None
+	if twitter_enabled:
+		twitter = TwitterPoster(
+			config.get("twitter_api_key"),
+			config.get("twitter_api_secret"),
+			config.get("twitter_access_token"),
+			config.get("twitter_access_secret")
+		)
+		logger.info("Twitter posting is enabled")
+	else:
+		logger.info("Twitter posting is disabled")
 	
 	logger.info(f"Starting Twitch stream monitor for: {twitch_channel}")
 	logger.info(f"Using model: {model}")
@@ -64,7 +79,16 @@ def main():
 				logger.info("Saving summary data...")
 				context.save_summary(summary_data, image_path, model)
 
-				# 5. Sleep for interval_minutes minutes
+				# 5. Post to Twitter if enabled and commentary is not empty
+				if twitter_enabled and twitter and summary_data.get("commentary"):
+					commentary = summary_data.get("commentary", "")
+					if commentary.strip() != "":
+						logger.info("Posting to Twitter...")
+						twitter.post_with_image(commentary, image_path)
+					else:
+						logger.info("Commentary is empty, skipping Twitter post")
+
+				# 6. Sleep for interval_minutes minutes
 				time.sleep(interval_minutes * 60)
 				
 			except Exception as e:

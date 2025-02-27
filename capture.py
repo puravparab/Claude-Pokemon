@@ -19,7 +19,7 @@ DEFAULT_PORT = 8000
 MAX_PORT_ATTEMPTS = 100
 EMBED_LOAD_TIMEOUT = 30
 WINDOW_WIDTH = 1920
-WINDOW_HEIGHT = 1150
+WINDOW_HEIGHT = 1200
 
 class Server(threading.Thread):
 	"""Run a simple HTTP server in a separate thread."""

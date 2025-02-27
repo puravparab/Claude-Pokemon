@@ -10,4 +10,8 @@ This is an AI bot that captures screenshots of Claude AI playing pokemon and wri
 	INTERVAL_MINUTES=
 	OPEN_ROUTER_API_KEY=
 	OPENROUTER_MODEL=
+	X_API_KEY=
+	X_API_SECRET=
+	X_ACCESS_TOKEN=
+	X_ENABLED=true
 	```

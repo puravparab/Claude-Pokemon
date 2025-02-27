@@ -37,7 +37,7 @@ class ContextManager:
 			summary_data["timestamp"] = datetime.now(timezone.utc).isoformat()
 			
 		# Count previous events
-		summary_data["num_previous_events"] = 5
+		summary_data["num_previous_events"] = 10
 
 		# Add image path
 		if image_path:
