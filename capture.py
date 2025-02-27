@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 DEFAULT_PORT = 8000
 MAX_PORT_ATTEMPTS = 100
 EMBED_LOAD_TIMEOUT = 30
-WINDOW_WIDTH = 1280
-WINDOW_HEIGHT = 720
+WINDOW_WIDTH = 1920
+WINDOW_HEIGHT = 1150
 
 class Server(threading.Thread):
 	"""Run a simple HTTP server in a separate thread."""
