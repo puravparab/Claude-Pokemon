@@ -16,7 +16,8 @@ class Config:
 		return {
 			"twitch_channel": os.getenv("TWITCH_CHANNEL", ""),
 			"interval_minutes": int(os.getenv("INTERVAL_MINUTES", "10")),
-			"openai_api_key": os.getenv("OPENAI_API_KEY", ""),
+			"openrouter_api_key": os.getenv("OPEN_ROUTER_API_KEY", ""),
+			"openrouter_model": os.getenv("OPEN_ROUTER_MODEL", "google/gemini-2.0-flash-lite-preview-02-05:free"),
 			"images_dir": os.getenv("IMAGES_DIR", "images"),
 			"context_file": os.getenv("CONTEXT_FILE", "context.json"),
 		}

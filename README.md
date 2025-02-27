@@ -8,4 +8,6 @@ This is an AI bot that captures screenshots of Claude AI playing pokemon and wri
 	```
 	TWITCH_CHANNEL=
 	INTERVAL_MINUTES=
+	OPEN_ROUTER_API_KEY=
+	OPENROUTER_MODEL=
 	```

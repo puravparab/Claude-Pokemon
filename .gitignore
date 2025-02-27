@@ -5,3 +5,4 @@ config.json
 logs/
 __pycache__/
 output/
+context.json
