@@ -69,7 +69,7 @@ def main():
 
 				# 2. Get context from JSON file
 				logger.info("Loading context data...")
-				context_data = context.get_context(10)
+				context_data = context.get_context(15)
 
 				# 3. Analyze image with OpenRouter
 				logger.info("Analyzing image ...")

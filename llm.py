@@ -49,6 +49,8 @@ class ImageAnalyzer:
 			4. Location details (routes, cities, buildings, distinctive landmarks)
 			5. Claude's progress/achievements (badges, team composition, significant events)
 			6. Any unique or rare occurrences (shiny Pokemon, rare encounters, critical moments)
+			7. If you see something amusing, mention it!
+			8. Do not refer to anything mentioned next to "using tool"
 			
 			Respond with a JSON object containing these fields:
 			- commentary: A brief, enthusiastic commentary about what's happening (1-2 sentences) - be entertaining!
@@ -130,7 +132,7 @@ class ImageAnalyzer:
 		
 		for idx, item in enumerate(context_data):
 			timestamp_str = item.get("timestamp", "")
-			commentary = item.get("commentary", "")
+			description = item.get("description", "")
 			
 			# Calculate relative time
 			time_ago = ""
@@ -154,6 +156,6 @@ class ImageAnalyzer:
 			except:
 				time_ago = f"at {timestamp_str}"
 				
-			context_string += f"{idx+1}. {time_ago}: {commentary}\n"
+			context_string += f"{idx+1}. {time_ago}: {description}\n"
 			
 		return context_string
