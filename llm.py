@@ -3,7 +3,7 @@ import json
 import base64
 import logging
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, List
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class ImageAnalyzer:
 			# Encode image
 			base64_image = self._encode_image(image_path)
 			
-			# Build context string from previous data
+			# Get recent context entries and build context string from previous data
 			context_string = self._build_context_string(context_data)
 			
 			# Create system prompt
@@ -125,22 +125,35 @@ class ImageAnalyzer:
 		if not context_data:
 			return "This is the first screenshot being analyzed."
 			
+		now = datetime.now(timezone.utc)
 		context_string = "Here's are the previous events in reverse chronological order\n"
 		
-		# Get the 3 most recent context items
-		recent_context = context_data[-5:]
-		
-		for idx, item in enumerate(recent_context):
-			timestamp = item.get("timestamp", "")
+		for idx, item in enumerate(context_data):
+			timestamp_str = item.get("timestamp", "")
 			commentary = item.get("commentary", "")
 			
-			# Convert ISO timestamp to more readable format if possible
+			# Calculate relative time
+			time_ago = ""
 			try:
-				timestamp_dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-				timestamp = timestamp_dt.strftime("%Y-%m-%d %H:%M:%S UTC")
+				timestamp_dt = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+				time_diff = now - timestamp_dt
+				# Convert to appropriate unit
+				minutes = time_diff.total_seconds() / 60
+				if minutes < 2:
+					time_ago = "1 minute ago"
+				elif minutes < 60:
+					time_ago = f"{int(minutes)} minutes ago"
+				elif minutes < 120:
+					time_ago = "1 hour ago"
+				elif minutes < 1440:  # less than a day
+					time_ago = f"{int(minutes / 60)} hours ago"
+				elif minutes < 2880:  # less than 2 days
+					time_ago = "1 day ago"
+				else:
+					time_ago = f"{int(minutes / 1440)} days ago"
 			except:
-				pass
+				time_ago = f"at {timestamp_str}"
 				
-			context_string += f"{idx+1}. At {timestamp}: {commentary}\n"
+			context_string += f"{idx+1}. {time_ago}: {commentary}\n"
 			
 		return context_string
