@@ -8,10 +8,15 @@ This is an AI bot that captures screenshots of Claude AI playing pokemon and wri
 	```
 	TWITCH_CHANNEL=
 	INTERVAL_MINUTES=
-	OPEN_ROUTER_API_KEY=
+
+	# Openrouter credentials
+	OPENROUTER_API_KEY=
 	OPENROUTER_MODEL=
+
+	# X API credentials
 	X_API_KEY=
 	X_API_SECRET=
 	X_ACCESS_TOKEN=
-	X_ENABLED=true
+	X_ACCESS_SECRET=
+	X_ENABLED=<set to `true` if you're posting to twitter else 'false'>
 	```

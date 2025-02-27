@@ -19,8 +19,8 @@ class Config:
 			"images_dir": os.getenv("IMAGES_DIR", "images"),
 			"context_file": os.getenv("CONTEXT_FILE", "context.json"),
 			# Openrouter API credentials
-			"openrouter_api_key": os.getenv("OPEN_ROUTER_API_KEY", ""),
-			"openrouter_model": os.getenv("OPEN_ROUTER_MODEL", "google/gemini-2.0-flash-lite-preview-02-05:free"),
+			"openrouter_api_key": os.getenv("OPENROUTER_API_KEY", ""),
+			"openrouter_model": os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-lite-preview-02-05:free"),
 			# X API credentials
 			"twitter_api_key": os.getenv("X_API_KEY", ""),
 			"twitter_api_secret": os.getenv("X_API_SECRET", ""),
