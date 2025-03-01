@@ -1,10 +1,6 @@
-## Claude Pokemon Watch
+## Claude Pokemon Updates (v2)
 
 This is an AI bot that captures screenshots of Claude AI [playing pokemon](https://www.twitch.tv/claudeplayspokemon) and posts a short commentary of what it's seeing to [x/twitter](https://x.com/claudetracker_)
-
-## Architecture
-
-![](./assets/images/v1.png)
 
 ## Requirements
 
@@ -17,9 +13,11 @@ This is an AI bot that captures screenshots of Claude AI [playing pokemon](https
 
 1. Add these enviroment variables to a .env file
 	```
-	TWITCH_CHANNEL=
-	INTERVAL_MINUTES=
-
+	# Bot settings
+	TWITCH_CHANNEL=<Name of the twitch channel>
+	AGENT_BOOT_WAIT=<How long to wait (mins) before starting agent loop>
+	MONTIOR_INTERVAL=<How long to wait (mins) before next screencap>
+	
 	# Openrouter credentials
 	OPENROUTER_API_KEY=
 	OPENROUTER_MODEL=
