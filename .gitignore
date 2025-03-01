@@ -6,3 +6,4 @@ logs/
 __pycache__/
 output/
 context.json
+other/
