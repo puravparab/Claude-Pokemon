@@ -2,6 +2,9 @@
 
 This is an AI bot that captures screenshots of Claude AI [playing pokemon](https://www.twitch.tv/claudeplayspokemon) and posts a short commentary of what it's seeing to [x/twitter](https://x.com/claudetracker_)
 
+## Architecture
+
+![](./assets/images/v1.png)
 
 ## Requirements
 
