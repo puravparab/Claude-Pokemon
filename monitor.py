@@ -8,8 +8,9 @@ from typing import Optional
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
-from monitor.capture import TwitchCapture
 from monitor.server import Server
+from monitor.capture import TwitchCapture
+from monitor.llm import ImageAnalyzer
 
 # Configure logging
 def setup_logging():
@@ -48,6 +49,7 @@ class Monitor:
 					
 		agent_boot_wait_str = os.getenv("AGENT_BOOT_WAIT", DEFAULT_AGENT_BOOT_WAIT)
 		monitor_interval_str = os.getenv("MONITOR_INTERVAL", DEFAULT_MONITOR_INTERVAL)
+		
 			
 		try:
 			# Convert to minutes (float to allow for fractions)
@@ -56,6 +58,9 @@ class Monitor:
 			# Convert minutes to seconds
 			self.agent_boot_wait_secs = self.agent_boot_wait * 60
 			self.monitor_interval_secs = self.monitor_interval * 60
+
+			self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
+			self.openrouter_model = os.getenv("OPENROUTER_MODEL")
 		except ValueError:
 			logger.error("AGENT_BOOT_WAIT and MONITOR_INTERVAL must be numeric values")
 			sys.exit(1)
@@ -64,6 +69,7 @@ class Monitor:
 		self.server_port = 8001
 		self.server: Optional[Server] = None
 		self.capture: Optional[TwitchCapture] = None
+		self.image_analyzer: Optional[ImageAnalyzer] = None
 		# Flag to control the main loop
 		self.running = False
         
@@ -80,6 +86,11 @@ class Monitor:
 			self.capture = TwitchCapture(server_port=self.server_port, images_dir=IMAGES_DIR)
 			self.capture.init()
 			logger.info(f"Initialization complete. Monitoring Twitch channel: {self.twitch_channel}")
+
+			# Initialize the Image Analyzer with Openrouter
+			logger.info("Initializing ImageAnalyzer...")
+			self.image_analyzer = ImageAnalyzer(api_key=self.openrouter_api_key, model=self.openrouter_model)
+			logger.info(f"ImageAnalyzer initialized (model: {self.openrouter_model})")
 
 		except Exception as e:
 			logger.error(f"Error during initialization: {e}")
@@ -104,8 +115,14 @@ class Monitor:
 			cleanup_count = 0  # Initialize image cleanup counter
 			while self.running:
 				try:
+					# Capture screenshot
 					screenshot_path = self.capture.capture_screenshot()
 					logger.info(f"Captured screenshot: {screenshot_path}")
+
+					# Analyze the screenshot
+					analysis = self.image_analyzer.analyze_image(screenshot_path)
+					print(analysis)
+					logger.info(f"Analysis successful (Score:{analysis['score']})")
 
 					cleanup_count += 1  # Increment cleanup counter
 					if cleanup_count >= 30: # Run cleanup when count reaches 30
@@ -157,7 +174,9 @@ class Monitor:
 						logger.debug(f"Removed old image: {old_file}")
 					except Exception as e:
 						logger.warning(f"Failed to remove old image {old_file}: {e}")
-			logger.info(f"Cleaned up {len(files_to_remove)} old images, keeping the latest {MAX_IMAGES}")
+				
+				logger.info(f"Cleaned up {len(files_to_remove)} old images, keeping the latest {MAX_IMAGES}")
+		
 		except Exception as e:
 			logger.error(f"Error cleaning up old images: {e}")
 
