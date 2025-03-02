@@ -16,7 +16,7 @@ This is an AI bot that captures screenshots of Claude AI [playing pokemon](https
 	# Bot settings
 	TWITCH_CHANNEL=<Name of the twitch channel>
 	AGENT_BOOT_WAIT=<How long to wait (mins) before starting agent loop>
-	MONTIOR_INTERVAL=<How long to wait (mins) before next screencap>
+	MONITOR_INTERVAL=<How long to wait (mins) before next screencap>
 	
 	# Openrouter credentials
 	OPENROUTER_API_KEY=
@@ -30,7 +30,9 @@ This is an AI bot that captures screenshots of Claude AI [playing pokemon](https
 	X_ENABLED=<set to `true` if you're posting to twitter else 'false'>
 	```
 
-2. Run the bot
+2. Run the monitor bot
 	```
-	uv run main.py
+	uv run monitor.py
 	```
+
+3. To stop the bot press `ctrl` + `c`
