@@ -110,7 +110,7 @@ class Monitor:
 					cleanup_count += 1  # Increment cleanup counter
 					if cleanup_count >= 30: # Run cleanup when count reaches 30
 						logger.info("Running image cleanup")
-						self.cleanup()
+						self.cleanup_images()
 						cleanup_count = 0 # Reset counter
 						
 					time.sleep(self.monitor_interval_secs)  # Wait until next capture
@@ -157,7 +157,7 @@ class Monitor:
 						logger.debug(f"Removed old image: {old_file}")
 					except Exception as e:
 						logger.warning(f"Failed to remove old image {old_file}: {e}")
-					logger.info(f"Cleaned up {len(files_to_remove)} old images, keeping the latest {MAX_IMAGES}")
+			logger.info(f"Cleaned up {len(files_to_remove)} old images, keeping the latest {MAX_IMAGES}")
 		except Exception as e:
 			logger.error(f"Error cleaning up old images: {e}")
 
