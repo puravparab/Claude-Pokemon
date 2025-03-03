@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
-from post.context import get_context
+from post.context import Context
 
 if __name__ == "__main__":
-	current_time = datetime.now(timezone.utc)
-	context = get_context(current_time)
-
-	print(context)
+	context = Context()
+	print(context.context_str)
