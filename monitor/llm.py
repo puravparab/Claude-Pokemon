@@ -4,7 +4,9 @@ import base64
 import logging
 import requests
 from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
+from .validate import validate_llm_response, get_default_response
+import tiktoken
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +67,9 @@ class ImageAnalyzer:
 		if not api_key:
 			logger.error("No OpenRouter API key provided")
 			raise ValueError("OpenRouter API key is required")
-            
+
+		self.encoder = tiktoken.encoding_for_model("gpt-4") # Initialize tiktoken encoder
+		
 	def _encode_image(self, image_path: str) -> str:
 		"""Encode image to base64."""
 		if not os.path.exists(image_path):
@@ -74,6 +78,19 @@ class ImageAnalyzer:
 		with open(image_path, "rb") as image_file:
 			return base64.b64encode(image_file.read()).decode('utf-8')
             
+	def _count_tokens(self, messages: List[Dict]) -> Tuple[int, int]:
+		"""Count input and output tokens using tiktoken."""
+		input_tokens = 0
+		for message in messages:
+			# Count tokens in text content
+			if isinstance(message.get('content'), str):
+				input_tokens += len(self.encoder.encode(message['content']))
+			elif isinstance(message.get('content'), list):
+				for content in message['content']:
+					if content['type'] == 'text':
+						input_tokens += len(self.encoder.encode(content['text']))
+		return input_tokens, 0  # Output tokens will be updated after response
+		
 	def analyze_image(self, image_path: str) -> Dict[str, Any]:
 		"""Analyze a Twitch gameplay image and return structured data."""
 		try:
@@ -103,6 +120,8 @@ class ImageAnalyzer:
 				}
 			]
 
+			input_tokens, _ = self._count_tokens(messages)
+
 			headers = {
 				"Authorization": f"Bearer {self.api_key}",
 				"Content-Type": "application/json"
@@ -116,81 +135,23 @@ class ImageAnalyzer:
 			logger.info(f"Analyzing {image_path} (model: {self.model})")
 			response = requests.post(self.api_url, json=payload, headers=headers)
 			response.raise_for_status()
+			
 			# Parse the response
 			result = response.json()
 			content = result["choices"][0]["message"]["content"]
+
+			output_tokens = len(self.encoder.encode(content))
 			analysis_result = json.loads(content)
+			analysis_result['token_usage'] = {
+				'input_tokens': input_tokens,
+				'output_tokens': output_tokens,
+				'total_tokens': input_tokens + output_tokens
+			}
+			
 			# Validate and sanitize the response
-			validated_result = self._validate_response(analysis_result, image_path, timestamp)
+			validated_result = validate_llm_response(analysis_result, image_path, timestamp)
 			return validated_result
 				
 		except Exception as e:
 			logger.error(f"Error analyzing image: {e}")
-			return self._get_default_response(image_path, timestamp)
-    
-	def _validate_response(self, response: Dict[str, Any], image_path: str, timestamp: str) -> Dict[str, Any]:
-		"""Validate and sanitize LLM response to ensure it matches the expected format."""
-		validated = {
-			"image_path": image_path,
-			"timestamp": timestamp,
-			"detailed_summary": "",
-			"team_details": [],
-			"score": 1,
-			"estimated_location": "Unknown"
-		}
-		
-		# Validate detailed_summary
-		if "detailed_summary" in response and isinstance(response["detailed_summary"], str):
-			validated["detailed_summary"] = response["detailed_summary"]
-				
-		# Validate team_details
-		if "team_details" in response and isinstance(response["team_details"], list):
-			valid_team = []
-			for pokemon in response["team_details"]:
-				if not isinstance(pokemon, dict):
-					continue
-				valid_pokemon = {
-					"name": "",
-					"custom_name": "",
-					"health": ""
-				}
-				# Validate pokemon name
-				if "name" in pokemon and isinstance(pokemon["name"], str):
-					valid_pokemon["name"] = pokemon["name"]
-				# Validate custom name
-				if "custom_name" in pokemon and isinstance(pokemon["custom_name"], str):
-					valid_pokemon["custom_name"] = pokemon["custom_name"]
-				# Validate health (must be one of the allowed values)
-				if "health" in pokemon and isinstance(pokemon["health"], str):
-					valid_pokemon["health"] = pokemon["health"]
-
-				valid_team.append(valid_pokemon)
-			validated["team_details"] = valid_team
-				
-		# Validate score (must be 1-10 integer)
-		if "score" in response:
-			try:
-				score = int(response["score"])
-				if 1 <= score <= 10:
-					validated["score"] = score
-				else:
-					validated["score"] = max(1, min(10, score)) # Clamp to 1-10 range
-			except (ValueError, TypeError):
-				pass
-						
-		# Validate estimated_location
-		if "estimated_location" in response and isinstance(response["estimated_location"], str):
-			validated["estimated_location"] = response["estimated_location"]
-				
-		return validated
-    
-	def _get_default_response(self, image_path: str, timestamp: str) -> Dict[str, Any]:
-		"""Return a default response structure when analysis fails."""
-		return {
-			"image_path": image_path,
-			"timestamp": timestamp,
-			"detailed_summary": "",
-			"team_details": [],
-			"score": 0,
-			"estimated_location": ""
-		}
+			return get_default_response(image_path, timestamp)
