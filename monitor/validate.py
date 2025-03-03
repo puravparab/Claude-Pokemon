@@ -1,11 +1,12 @@
 from typing import Dict, Any
 from datetime import datetime
 
-def validate_llm_response(response: Dict[str, Any], image_path: str, timestamp: str) -> Dict[str, Any]:
+def validate_llm_response(response: Dict[str, Any], image_path: str, timestamp: str, model: str) -> Dict[str, Any]:
 	"""Validate and sanitize LLM response to ensure it matches the expected format."""
 	validated = {
 		"image_path": image_path,
 		"timestamp": timestamp,
+		"model": model,
 		"detailed_summary": "",
 		"team_details": [],
 		"score": 1,
@@ -73,6 +74,7 @@ def get_default_response(image_path: str, timestamp: str) -> Dict[str, Any]:
 	return {
 		"image_path": image_path,
 		"timestamp": timestamp,
+		"model": None,
 		"detailed_summary": "",
 		"team_details": [],
 		"score": 0,

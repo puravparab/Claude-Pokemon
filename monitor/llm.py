@@ -10,9 +10,10 @@ import tiktoken
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MODEL = "google/gemini-2.0-flash-lite-preview-02-05:free"
 AVAILABLE_MODELS = [
 	"google/gemini-2.0-flash-lite-preview-02-05:free",
+	# "google/gemini-2.0-pro-exp-02-05:free",
+	"google/gemini-2.0-flash-001"
 ]
 
 # System prompt for Pokemon gameplay analysis
@@ -66,9 +67,9 @@ Here's an example response (Make sure you only respond in this format):
 
 class ImageAnalyzer:
 	"""Analyzes Pokemon gameplay images using LLM models"""
-	def __init__(self, api_key: str, model: str = DEFAULT_MODEL):
+	def __init__(self, api_key: str, model: str = None):
 		self.api_key = api_key
-		self.model = model if model in AVAILABLE_MODELS else DEFAULT_MODEL
+		self.model = model if model in AVAILABLE_MODELS else AVAILABLE_MODELS[0]
 		self.api_url = "https://openrouter.ai/api/v1/chat/completions"
 		
 		if not api_key:
@@ -133,32 +134,58 @@ class ImageAnalyzer:
 				"Authorization": f"Bearer {self.api_key}",
 				"Content-Type": "application/json"
 			}
-			payload = {
-				"model": self.model,
-				"messages": messages,
-				"response_format": {"type": "json_object"}
-			}
-
-			logger.info(f"Analyzing {image_path} (model: {self.model})")
-			response = requests.post(self.api_url, json=payload, headers=headers)
-			response.raise_for_status()
 			
-			# Parse the response
-			result = response.json()
-			content = result["choices"][0]["message"]["content"]
+			# Iterate through available models until request is processed
+			for model in AVAILABLE_MODELS:
+				payload = {
+					"model": model,
+					"messages": messages,
+					"response_format": {"type": "json_object"}
+				}
+				try:
+					logger.info(f"Analyzing {image_path} (model: {model})")
+					response = requests.post(self.api_url, json=payload, headers=headers)
+					response.raise_for_status()
 
-			output_tokens = len(self.encoder.encode(content))
-			analysis_result = json.loads(content)
-			analysis_result['token_usage'] = {
-				'input_tokens': input_tokens,
-				'output_tokens': output_tokens,
-				'total_tokens': input_tokens + output_tokens
-			}
-			
-			# Validate and sanitize the response
-			validated_result = validate_llm_response(analysis_result, image_path, timestamp)
-			logger.info(f"Analysis of {image_path} successful!")
-			return validated_result
+					# Parse the response
+					result = response.json()
+					# Safely extract content from response
+					if ("choices" not in result or 
+						not result["choices"] or 
+						"message" not in result["choices"][0] or
+						"content" not in result["choices"][0]["message"]):
+						logger.warning(f"Unexpected response structure from model {model}")
+						continue
+
+					content = result["choices"][0]["message"]["content"]
+					output_tokens = len(self.encoder.encode(content))
+
+					try:
+						analysis_result = json.loads(content)
+					except json.JSONDecodeError as json_err:
+						logger.warning(f"Failed to parse JSON from model {model}: {json_err}")
+						continue
+
+					analysis_result['token_usage'] = {
+						'input_tokens': input_tokens,
+						'output_tokens': output_tokens,
+						'total_tokens': input_tokens + output_tokens
+					}
+					
+					# Validate and sanitize the response
+					validated_result = validate_llm_response(analysis_result, image_path, timestamp, model)
+					logger.info(f"Analysis of {image_path} successful!")
+					return validated_result
+				except requests.exceptions.HTTPError as e:
+					if e.response.status_code == 429:
+						logger.warning(f"Rate limit exceeded for model {model}, trying next model")
+						continue
+					else:
+						logger.error(f"HTTP error with model {model}: {e}")
+						continue
+
+			logger.error("All models failed to analyze the image")
+			return get_default_response(image_path, timestamp)
 				
 		except Exception as e:
 			logger.error(f"Error analyzing image: {e}")
