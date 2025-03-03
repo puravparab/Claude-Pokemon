@@ -1,7 +1,35 @@
+import json
 from typing import Dict, Any
 from datetime import datetime
 
-def validate_llm_response(response: Dict[str, Any], image_path: str, timestamp: str, model: str) -> Dict[str, Any]:
+def validate_response(response, image_path: str, timestamp: str, model: str, input_tokens: int, encoder):
+	"""Validate and process LLM API response."""
+	# Check if response has the expected structure
+	if (
+		"choices" not in response or 
+		not response["choices"] or 
+		"message" not in response["choices"][0] or
+		"content" not in response["choices"][0]["message"]
+	):
+		raise ValueError("Invalid response structure")
+
+	content = response["choices"][0]["message"]["content"]
+	output_tokens = count_tokens(content, encoder)
+
+	try:
+		analysis_result = json.loads(content)
+	except json.JSONDecodeError as json_err:
+		raise ValueError(f"Failed to parse JSON: {json_err}")
+
+	analysis_result['token_usage'] = {
+		'input_tokens': input_tokens,
+		'output_tokens': output_tokens,
+		'total_tokens': input_tokens + output_tokens
+	}
+
+	return analysis_result
+		
+def sanitize_results(response: Dict[str, Any], image_path: str, timestamp: str, model: str) -> Dict[str, Any]:
 	"""Validate and sanitize LLM response to ensure it matches the expected format."""
 	validated = {
 		"image_path": image_path,
@@ -85,3 +113,7 @@ def get_default_response(image_path: str, timestamp: str) -> Dict[str, Any]:
 			"total_tokens": 0,
 		}
 	} 
+
+def count_tokens(text: str, encoder) -> int:
+	"""Count tokens in text using the provided encoder."""
+	return len(encoder.encode(text))
