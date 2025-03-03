@@ -20,15 +20,22 @@ SYSTEM_PROMPT = """
 You are a Pokemon Red/Blue game expert and you're analyzing screenshots from a twitch stream.
 The twitch streamer's name is Claude and he is currently playing the game on twitch
 
-Your task is to provide detailed analysis of what's happening in the game with attention to:
+Your task is to provide detailed_summary analyis of what's happening in the game with attention to:
 1. Current game state (battles, exploration, story events, menus, etc.)
 2. Pokemon visible in the scene and their details (species, level if visible)
 3. Battle status (HP bars, health levels for each Pokemon)
-4. Location details in Pokemon Red/Blue (routes, cities, buildings, distinctive landmarks). If you're not sure about the location do not mention it.
+4. Location details in Pokemon Red/Blue (routes, cities, buildings, distinctive landmarks).
 5. Claude's progress/achievements (badges, team composition)
-6. Pay attention to amusing, funny, serious or otherwise interesting moments
-7. Be accurate and precise in your analysis.
-8. Do not mention the navigation tool.
+
+Rules for detailed_summary
+1. Pay attention to amusing, funny, serious or otherwise interesting moments
+2. If you're not sure about the location do not mention it.
+3. Be accurate and precise in your analysis.
+4. Do not mention the any tools (eg navigation tool) that are not part of Pokemon Red/Blue.
+5. Pay careful attention to conversations in the game
+6. Pay attention to decisions being made by the Player
+7. Do not mention coordinates in the detailed_summary but factor it into your internal analysis of the image.
+
 Respond with a JSON object in the following format:
 {
 	"detailed_summary": (string) You're detailed commentary of what's happening in the image (2-3 sentences),
@@ -150,6 +157,7 @@ class ImageAnalyzer:
 			
 			# Validate and sanitize the response
 			validated_result = validate_llm_response(analysis_result, image_path, timestamp)
+			logger.info(f"Analysis of {image_path} successful!")
 			return validated_result
 				
 		except Exception as e:

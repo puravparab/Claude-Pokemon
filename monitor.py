@@ -11,6 +11,7 @@ load_dotenv(override=True)
 from monitor.server import Server
 from monitor.capture import TwitchCapture
 from monitor.llm import ImageAnalyzer
+from monitor.context import save_to_context
 
 # Configure logging
 def setup_logging():
@@ -117,12 +118,12 @@ class Monitor:
 				try:
 					# Capture screenshot
 					screenshot_path = self.capture.capture_screenshot()
-					logger.info(f"Captured screenshot: {screenshot_path}")
 
 					# Analyze the screenshot
 					analysis = self.image_analyzer.analyze_image(screenshot_path)
-					print(analysis)
-					logger.info(f"Analysis successful (Score:{analysis['score']})")
+
+					# Save the analysis to context.json
+					save_to_context(analysis)
 
 					cleanup_count += 1  # Increment cleanup counter
 					if cleanup_count >= 30: # Run cleanup when count reaches 30
