@@ -61,7 +61,6 @@ class Monitor:
 			self.monitor_interval_secs = self.monitor_interval * 60
 
 			self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
-			self.openrouter_model = os.getenv("OPENROUTER_MODEL")
 		except ValueError:
 			logger.error("AGENT_BOOT_WAIT and MONITOR_INTERVAL must be numeric values")
 			sys.exit(1)
@@ -90,8 +89,8 @@ class Monitor:
 
 			# Initialize the Image Analyzer with Openrouter
 			logger.info("Initializing ImageAnalyzer...")
-			self.image_analyzer = ImageAnalyzer(api_key=self.openrouter_api_key, model=self.openrouter_model)
-			logger.info(f"ImageAnalyzer initialized (model: {self.openrouter_model})")
+			self.image_analyzer = ImageAnalyzer(api_key=self.openrouter_api_key)
+			logger.info(f"ImageAnalyzer initialized")
 
 		except Exception as e:
 			logger.error(f"Error during initialization: {e}")

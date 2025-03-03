@@ -21,7 +21,6 @@ This is an AI bot that captures screenshots of Claude AI [playing pokemon](https
 	
 	# Openrouter credentials
 	OPENROUTER_API_KEY=
-	OPENROUTER_MODEL=
 
 	# X API credentials
 	X_API_KEY=
