@@ -40,7 +40,7 @@ DEFAULT_AGENT_BOOT_WAIT = "0" # mins
 DEFAULT_MONITOR_INTERVAL = "0.5" # mins
 MAX_IMAGES = 20 # Max images in context (roughly 10 mins worth of images)
 
-class Monitor:
+class MonitorAgent:
 	def __init__(self):
 		# Get environment variables with defaults
 		self.twitch_channel = os.getenv("TWITCH_CHANNEL")
@@ -53,7 +53,7 @@ class Monitor:
 		
 			
 		try:
-			# Convert to minutes (float to allow for fractions)
+			# Convert to minutes (float)
 			self.agent_boot_wait = float(agent_boot_wait_str)
 			self.monitor_interval = float(monitor_interval_str)
 			# Convert minutes to seconds
@@ -181,6 +181,6 @@ class Monitor:
 			logger.error(f"Error cleaning up old images: {e}")
 
 if __name__ == "__main__":
-	monitor = Monitor()
+	monitor = MonitorAgent()
 	monitor.initialize()
 	monitor.run()
