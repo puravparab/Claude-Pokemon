@@ -122,7 +122,7 @@ class PostAgent:
 					logger.info("Context loaded")
 
 					# Do not call the llm if recent context and posts are empty
-					if self.context.context_str != "" and self.context.posts_str:
+					if self.context.context_str != "" or self.context.posts_str != "":
 						combined_context = self.context.context_str + self.context.posts_str
 						# print(combined_context)
 						# Send to llm for post creating

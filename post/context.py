@@ -23,6 +23,7 @@ class Context:
 		self.context_str = self.context_to_string(self.context)
 
 		self.posts_dir = Path(posts_dir)
+		self.posts_dir.mkdir(parents=True, exist_ok=True)
 		self.posts_path = self.posts_dir / posts_filename
 		self.posts = self.get_posts()
 		self.posts_str = self.posts_to_string(self.posts)
