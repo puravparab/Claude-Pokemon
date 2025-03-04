@@ -113,10 +113,14 @@ class PostAgent:
 					self.context = Context()
 					logger.info("Context loaded")
 
-					# Send to llm for post creating
-					analysis = self.post_analyzer.analyze_context(self.context.context_str)
-					# Save post to context/posts and get image path
-					image_path = self.context.save_post(analysis)
+					# Do not call the llm if recent context and posts are empty
+					if self.context.context_str != "" and self.context.posts_str:
+						combined_context = self.context.context_str + self.context.posts_str
+						print(combined_context)
+						# Send to llm for post creating
+						analysis = self.post_analyzer.analyze_context(combined_context)
+						# Save post to context/posts and get image path
+						image_path = self.context.save_post(analysis)
 					
 					# Wait until next posting check
 					time.sleep(self.post_interval_secs)

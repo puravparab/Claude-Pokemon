@@ -17,11 +17,15 @@ class Context:
 		posts_filename: str = "posts.jsonl"
 	):
 		self.timestamp = datetime.now(timezone.utc)
+
 		self.context_path = Path(context_dir) / context_filename
-		self.posts_dir = Path(posts_dir)
-		self.posts_path = self.posts_dir / posts_filename
 		self.context = self.get_context()
 		self.context_str = self.context_to_string(self.context)
+
+		self.posts_dir = Path(posts_dir)
+		self.posts_path = self.posts_dir / posts_filename
+		self.posts = self.get_posts()
+		self.posts_str = self.posts_to_string(self.posts)
 
 	def get_context(
 		self,
@@ -154,3 +158,68 @@ class Context:
 			logger.error(f"Error saving post to {self.posts_path}: {e}")
 			
 		return image_path
+
+	def get_posts(
+		self,
+		limit: int = 10
+	) -> dict:
+		"""Get the most recent posts (previous milestones) up to the specified limit."""
+		posts = []
+		result = {
+			"posts": posts,
+			"count": 0
+		}
+			
+		try:
+			# Check if posts file exists
+			if not self.posts_path.exists():
+				logger.info(f"Posts file not found at {self.posts_path}")
+				return result
+					
+			# Read all lines from the posts file
+			with open(self.posts_path, 'r') as f:
+				for line in f:
+					try:
+						post = json.loads(line)
+						posts.append(post)
+					except json.JSONDecodeError as e:
+						logger.error(f"Error parsing post: {e}")
+						continue
+			
+			# Sort posts by timestamp (newest first)
+			posts.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+			
+			# Get latest posts up to specified limit
+			if limit is not None:
+				posts = posts[:limit]
+					
+			result["posts"] = posts
+			result["count"] = len(posts)
+			return result
+			
+		except Exception as e:
+			logger.error(f"Error retrieving posts: {e}")
+			return result
+
+	def posts_to_string(self, posts_data: dict = None) -> str:
+		"""Convert posts/previous milestones data into a formatted string that can be passed to an llm."""
+		if posts_data is None:
+			posts_data = self.get_posts()
+			
+		if not posts_data or "count" not in posts_data or posts_data["count"] == 0:
+			return ""
+			
+		count = posts_data["count"]
+		result = "<previous_milestones>\n"
+
+		for post in posts_data["posts"]:
+			if post["commentary"] != "":
+			# Calculate relative time
+				post_time = datetime.fromisoformat(post["timestamp"])
+				current_time = datetime.now(timezone.utc)
+				relative_time = get_relative_time(current_time.timestamp(), post_time.timestamp())
+				# Format previous milestones
+				result += f"{relative_time}: \"{post['commentary']}\"\n"
+
+		result += "</previous_milestones>"
+		return result
