@@ -5,7 +5,7 @@ import logging
 import requests
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Tuple
-from .validate import validate_response,sanitize_results,  get_default_response, count_tokens
+from .validate import validate_response,sanitize_results, get_default_response, count_tokens
 import tiktoken
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ AVAILABLE_MODELS = [
 	"google/gemini-2.0-flash-001"
 ]
 
-# System prompt for Pokemon gameplay analysis
+# System prompt for ImaageAnalyzer
 SYSTEM_PROMPT = """
 You are a Pokemon Red/Blue game expert and you're analyzing screenshots from a twitch stream.
 The twitch streamer's name is Claude and he is currently playing the game on twitch
@@ -46,7 +46,7 @@ Respond with a JSON object in the following format:
     	"custom_name": (string) Nickname of the Pokemon if visible, otherwise same as name,
     	"health: (string) a one word description on how full the health of the pokemon is.
 		}],
-	"score": (number) A score from 1-10 where 10 is a major event (gym battle win, catching rare Pokemon, etc.),
+	"score": (number) A score from 1-10 where 10 is a major event and 1 is mundane event (important events can be gym battle win, catching rare Pokemon, pokemon battles, other events, etc.),
 	"estimated_location": (string) The location in the Pokemon Red/Blue map where the player appears to be
 }
 
@@ -103,8 +103,6 @@ class ImageAnalyzer:
 		try:
 			timestamp = datetime.now(timezone.utc).isoformat()
 			base64_image = self._encode_image(image_path)
-
-			# Create messages for the API
 			messages = [
 				{
 					"role": "system", 

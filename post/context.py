@@ -100,14 +100,14 @@ class Context:
 			result += f'  "event_details": "{event["detailed_summary"]}",\n'
 			
 			# Handle team data
-			team_data = event.get("team", [])
+			team_data = event.get("team_details", [])
 			if team_data:
 				team_members = []
 				for member in team_data:
 					name = member.get("name", "unknown pokemon name")
 					custom_name = member.get("custom_name", "unknown custom name")
 					health = member.get("health", "unknown health status")
-					team_members.append(f"{name} ({health})")
+					team_members.append(f"{name}/{custom_name} ({health})")
 				team_str = ", ".join(team_members)
 				result += f'  "team": "There are {len(team_data)} pokemons ({team_str})",\n'
 			else:

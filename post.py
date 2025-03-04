@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 
 from post.context import Context
+from post.llm import PostAnalyzer
 
 # Configure logging
 def setup_logging():
@@ -49,6 +50,9 @@ class PostAgent:
 			self.agent_boot_wait_secs = self.agent_boot_wait * 60
 			self.post_interval_secs = self.post_interval * 60
 			
+			# Openrouter credentials
+			self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
+
 			# X API credentials
 			self.x_api_key = os.getenv("X_API_KEY")
 			self.x_api_secret = os.getenv("X_API_SECRET")
@@ -69,6 +73,11 @@ class PostAgent:
 			logger.info("Initializing posting agent...")
 			logger.info(f"Post interval set to {self.post_interval} minutes")
 			logger.info(f"X/Twitter posting enabled") if self.x_enabled else logger.info(f"X/Twitter posting disabled")
+
+			# Initialize the PostAnalyzer with Openrouter
+			logger.info("Initializing PostAnalyzer...")
+			self.post_analyzer = PostAnalyzer(api_key=self.openrouter_api_key)
+			logger.info(f"PostAnalyzer initialized")
 				
 			# Check X credentials if enabled
 			# if self.x_enabled:
@@ -102,8 +111,11 @@ class PostAgent:
 					self.context = Context() # get context from past events
 					logger.info("Context loaded")
 
-					print(self.context.context_str)
-
+					# Analyze the context
+					# print(self.context.context_str)
+					analysis = self.post_analyzer.analyze_context(self.context.context_str)
+					print(analysis)
+					
 					# Wait until next posting check
 					time.sleep(self.post_interval_secs)
 				except Exception as e:
@@ -115,6 +127,7 @@ class PostAgent:
 		"""Handle keyboard interrupt or termination signal"""
 		logger.info("Received interrupt signal, shutting down...")
 		self.running = False
+		raise KeyboardInterrupt
 
 	def cleanup(self):
 		"""Clean up resources"""
