@@ -11,14 +11,16 @@ import tiktoken
 logger = logging.getLogger(__name__)
 
 AVAILABLE_MODELS = [
+	# "anthropic/claude-3.7-sonnet:beta",
+	"deepseek/deepseek-r1:free",
 	"google/gemini-2.0-flash-lite-preview-02-05:free",
 	# "google/gemini-2.0-pro-exp-02-05:free",
-	"google/gemini-2.0-flash-001"
+	"google/gemini-2.0-flash-001",
 ]
 
 # System prompt for post agent
 SYSTEM_PROMPT = """
-You are a Pokemon Red/Blue game expert and you're evaluating data such as recent events (within 5 minutes) and previous milestones.
+You are an autonomous AI agent thats an expert of Pokemon Red/Blue and you're evaluating data such as recent events (within 5 minutes) and previous milestones.
 This data was created by analyzing from screenshots from a twitch stream.
 The twitch streamer's name is Claude and he is currently playing Pokemon Red/Blue on twitch
 
