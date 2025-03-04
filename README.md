@@ -34,7 +34,7 @@ This is an AI bot that captures screenshots of Claude AI [playing pokemon](https
 	```
 	uv run monitor.py
 	```
-3. Run the posting agent
+3. Run the posting agent in another tab
 	```
 	uv run post.py
 	```
