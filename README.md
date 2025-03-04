@@ -1,8 +1,11 @@
-## Claude Pokemon Updates (v2)
+## Claude Pokemon Updates
 
-This is an AI bot that captures screenshots of Claude AI [playing pokemon](https://www.twitch.tv/claudeplayspokemon) and posts a short commentary of what it's seeing to [x/twitter](https://x.com/claudetracker_)
+This is an AI agent that autonomously watches [Claude plays Pokemon](https://www.twitch.tv/claudeplayspokemon) and posts updates to [x/twitter](https://x.com/claudetracker_)
 
-## Requirements
+Current Architecture:
+![Claude AI Pokemon](assets/images/v2.png)
+
+### Requirements
 
 - python 3.12
 - x developer account
