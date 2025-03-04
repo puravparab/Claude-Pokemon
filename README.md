@@ -1,12 +1,11 @@
-## Claude Pokemon Watch
+## Claude Pokemon Updates
 
-This is an AI bot that captures screenshots of Claude AI [playing pokemon](https://www.twitch.tv/claudeplayspokemon) and posts a short commentary of what it's seeing to [x/twitter](https://x.com/claudetracker_)
+This is an AI agent that autonomously watches [Claude plays Pokemon](https://www.twitch.tv/claudeplayspokemon) and posts updates to [x/twitter](https://x.com/claudetracker_)
 
-## Architecture
+Current Architecture:
+![Claude AI Pokemon](assets/images/v2.png)
 
-![](./assets/images/v1.png)
-
-## Requirements
+### Requirements
 
 - python 3.12
 - x developer account
@@ -17,12 +16,14 @@ This is an AI bot that captures screenshots of Claude AI [playing pokemon](https
 
 1. Add these enviroment variables to a .env file
 	```
-	TWITCH_CHANNEL=
-	INTERVAL_MINUTES=
-
+	# Bot settings
+	TWITCH_CHANNEL=<Name of the twitch channel>
+	AGENT_BOOT_WAIT=<How long to wait (mins) before starting agent loop>
+	MONITOR_INTERVAL=<How long to wait (mins) before next screencap>
+	POST_INTERVAL=<How long should the posting agent wait (mins) before next evaluation>
+	
 	# Openrouter credentials
 	OPENROUTER_API_KEY=
-	OPENROUTER_MODEL=
 
 	# X API credentials
 	X_API_KEY=
@@ -32,7 +33,13 @@ This is an AI bot that captures screenshots of Claude AI [playing pokemon](https
 	X_ENABLED=<set to `true` if you're posting to twitter else 'false'>
 	```
 
-2. Run the bot
+2. Run the twitch monitoring agent
 	```
-	uv run main.py
+	uv run monitor.py
 	```
+3. Run the posting agent in another tab
+	```
+	uv run post.py
+	```
+
+3. To stop the bot press `ctrl` + `c`
