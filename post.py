@@ -11,7 +11,7 @@ load_dotenv(override=True)
 
 from post.llm import PostAnalyzer
 from post.context import Context
-
+from post.tweet import TwitterClient
 
 # Configure logging
 def setup_logging():
@@ -73,19 +73,27 @@ class PostAgent:
 		try:
 			logger.info("Initializing posting agent...")
 			logger.info(f"Post interval set to {self.post_interval} minutes")
-			logger.info(f"X/Twitter posting enabled") if self.x_enabled else logger.info(f"X/Twitter posting disabled")
+
+			# Initialize Twitter if enabled
+			if self.x_enabled:
+				if all([self.x_api_key, self.x_api_secret, self.x_access_token, self.x_access_secret]):
+					logger.info("X/Twitter posting enabled!")
+					self.x_client = TwitterClient(
+						self.x_api_key, 
+						self.x_api_secret, 
+						self.x_access_token, 
+						self.x_access_secret
+					)
+				else:
+					logger.warning("X/Twitter posting disabled as credentials are incomplete")
+					self.x_enabled = False
+			else:
+				logger.info("X/Twitter posting disabled")
 
 			# Initialize the PostAnalyzer with Openrouter
 			logger.info("Initializing PostAnalyzer...")
 			self.post_analyzer = PostAnalyzer(api_key=self.openrouter_api_key)
 			logger.info(f"PostAnalyzer initialized")
-				
-			# Check X credentials if enabled
-			# if self.x_enabled:
-			# 	if not all([self.x_api_key, self.x_api_secret, self.x_access_token, self.x_access_secret]):
-			# 			logger.warning("X posting is enabled but credentials are incomplete")
-			# 	else:
-			# 			logger.info("X credentials verified")
 				
 		except Exception as e:
 			logger.error(f"Error during initialization: {e}")
@@ -116,12 +124,25 @@ class PostAgent:
 					# Do not call the llm if recent context and posts are empty
 					if self.context.context_str != "" and self.context.posts_str:
 						combined_context = self.context.context_str + self.context.posts_str
-						print(combined_context)
+						# print(combined_context)
 						# Send to llm for post creating
 						analysis = self.post_analyzer.analyze_context(combined_context)
 						# Save post to context/posts and get image path
 						image_path = self.context.save_post(analysis)
-					
+
+						# Post to Twitter if enabled and the LLM decides to post
+						if (
+							self.x_enabled and 
+							hasattr(self, 'x_client') and 
+							analysis.get("post", False) and 
+							analysis.get("commentary", False)
+						):
+							success = self.x_client.post(analysis["commentary"], image_path)
+							if success:
+								logger.info(f"Posted to X/Twitter: {analysis['commentary'][:30]}...")
+							else:
+								logger.warning("Failed to post to X/Twitter")
+
 					# Wait until next posting check
 					time.sleep(self.post_interval_secs)
 				except Exception as e:

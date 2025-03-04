@@ -45,7 +45,7 @@ Rules for commentary:
 
 Respond with a JSON object in the following format:
 {
-	"commentary": (string) Your commentary),
+	"commentary": (string) Your commentary. Keep it casual and concise. You can you emojis if you want but only use them when necessary!,
 	"score": (int) Your score out of 10 that depends on how important you think this post is. 0 if the commentary is redundant and 10 if this is a very unique and significant event. Reward new events with high scores and punish redundant events very harshly with low scores!
 	"post": (boolean) true or false if you think the commentary should be posted to social media. Use the recent events and average score to make a judgement. false if player is on the same task as some of the previous_milestones. Low scores should be generally set to false
 	"image_id": (int) Respond with the id of the recent event you think is relevant to your commentary. This will be used to post a relevant image
