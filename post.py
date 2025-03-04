@@ -9,8 +9,9 @@ from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
-from post.context import Context
 from post.llm import PostAnalyzer
+from post.context import Context
+
 
 # Configure logging
 def setup_logging():
@@ -108,13 +109,14 @@ class PostAgent:
 			logger.info(f"Starting posting loop (interval: {self.post_interval} minutes)")
 			while self.running:
 				try:
-					self.context = Context() # get context from past events
+					# Get context from past events
+					self.context = Context()
 					logger.info("Context loaded")
 
-					# Analyze the context
-					# print(self.context.context_str)
+					# Send to llm for post creating
 					analysis = self.post_analyzer.analyze_context(self.context.context_str)
-					print(analysis)
+					# Save post to context/posts and get image path
+					image_path = self.context.save_post(analysis)
 					
 					# Wait until next posting check
 					time.sleep(self.post_interval_secs)
