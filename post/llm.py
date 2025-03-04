@@ -5,7 +5,7 @@ import logging
 import requests
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Tuple
-from .validate import count_tokens
+from .validate import validate_response, sanitize_results, get_default_response, count_tokens
 import tiktoken
 
 logger = logging.getLogger(__name__)
@@ -134,40 +134,24 @@ class PostAnalyzer:
 							logger.error(f"HTTP error with model {model}: {response.status_code}")
 							continue
 
-					# # Let validate_api_response handle all the validation
-					# validated_result = validate_response(
-					# 	response.json(), 
-					# 	image_path, 
-					# 	timestamp, 
-					# 	model, 
-					# 	input_tokens,
-					# 	self.encoder
-					# )
-					
-					# # Sanitize the response
-					# result = sanitize_results(validated_result, image_path, timestamp, model)
-					# logger.info(f"Analysis of {image_path} successful!")
-					return response.json()["choices"][0]["message"]["content"]
+					validated_result = validate_response(
+						response.json(), 
+						timestamp, 
+						model, 
+						input_tokens,
+						self.encoder
+					)
+					result = sanitize_results(validated_result, timestamp, model)
+					logger.info(f"Analysis of context successful!")
+					return result
 					
 				except Exception as e:
 					logger.error(f"Error with model {model}: {e}")
 					continue
 
-			logger.error("All models failed to analyze the image")
-			return {
-				"commentary": "Error during analysis",
-				"score": 0,
-				"post": False,
-				"image_id": None
-			}
-			# return get_default_response(image_path, timestamp)
+			logger.error("All models failed to analyze the context")
+			return get_default_response(timestamp)
 				
 		except Exception as e:
-			logger.error(f"Error analyzing image: {e}")
-			# return get_default_response(image_path, timestamp)
-			return {
-				"commentary": "Error during analysis",
-				"score": 0,
-				"post": False,
-				"image_id": None
-			}
+			logger.error(f"Error analyzing context: {e}")
+			return get_default_response(timestamp)

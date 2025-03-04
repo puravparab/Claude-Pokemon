@@ -3,8 +3,7 @@ from typing import Dict, Any
 from datetime import datetime
 
 def validate_response(response, image_path: str, timestamp: str, model: str, input_tokens: int, encoder):
-	"""Validate and process LLM API response."""
-	# Check if response has the expected structure
+	"""Validate and process LLM API response for monitoring agent."""
 	if (
 		"choices" not in response or 
 		not response["choices"] or 
