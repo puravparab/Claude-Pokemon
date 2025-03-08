@@ -36,6 +36,7 @@ Rules for detailed_summary
 6. Pay attention to decisions being made by the Player
 7. Do not mention coordinates in the detailed_summary but factor it into your internal analysis of the image.
 8. Pay attention to the Pokemon visible in the scene and their details (species, level if visible)
+9. Be objective, sometimes the streamer can make mistakes or hallucinate. Identify these moments.
 
 Respond with a JSON object in the following format:
 {
