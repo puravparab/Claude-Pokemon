@@ -14,7 +14,8 @@ class Context:
 		context_dir: str = "context/monitor", 
 		context_filename: str = "context.jsonl",
 		posts_dir: str = "context/posts", 
-		posts_filename: str = "posts.jsonl"
+		posts_filename: str = "posts.jsonl",
+		notes_filename: str = "notes.txt"
 	):
 		self.timestamp = datetime.now(timezone.utc)
 
@@ -25,6 +26,11 @@ class Context:
 		self.posts_dir = Path(posts_dir)
 		self.posts_dir.mkdir(parents=True, exist_ok=True)
 		self.posts_path = self.posts_dir / posts_filename
+		# Create posts file if it doesn't exist
+		if not self.posts_path.exists():
+			logger.info(f"Creating empty posts file at {self.posts_path}")
+			self.posts_path.touch()
+			
 		self.posts = self.get_posts()
 		self.posts_str = self.posts_to_string(self.posts)
 
