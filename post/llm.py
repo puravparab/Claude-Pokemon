@@ -11,10 +11,7 @@ import tiktoken
 logger = logging.getLogger(__name__)
 
 AVAILABLE_MODELS = [
-	# "anthropic/claude-3.7-sonnet:beta",
-	"deepseek/deepseek-r1:free",
 	"google/gemini-2.0-flash-lite-preview-02-05:free",
-	# "google/gemini-2.0-pro-exp-02-05:free",
 	"google/gemini-2.0-flash-001",
 ]
 
