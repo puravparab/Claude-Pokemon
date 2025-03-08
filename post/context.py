@@ -20,8 +20,8 @@ class Context:
 		self.timestamp = datetime.now(timezone.utc)
 
 		self.context_path = Path(context_dir) / context_filename
-		self.context = self.get_context()
-		self.context_str = self.context_to_string(self.context)
+		self.context = self._get_context()
+		self.context_str = self._context_to_string(self.context)
 
 		# Set up posts
 		self.posts_dir = Path(posts_dir)
@@ -32,16 +32,15 @@ class Context:
 			self.posts_path.touch()
 
 		# Set up notes
-		self.notes_dir.mkdir(parents=True, exist_ok=True)
-		self.notes_path = self.notes_dir / notes_filename
-		self.notes = self.get_notes()
+		self.notes_path = self.posts_dir / notes_filename
+		self.notes = self._get_notes()
 
 #------------------------------------------------------------------------
 # CONTEXT
 # - context/monitor/context.jsonl
 # - contains image analysis of the twitch stream created by monitor agent
 #------------------------------------------------------------------------
-	def get_context(
+	def _get_context(
 		self,
 		interval: timedelta = timedelta(minutes=5),
 		limit: int = 20,
@@ -96,7 +95,7 @@ class Context:
 			logger.error(f"Error retrieving context entries: {e}")
 			return {}
 
-	def context_to_string(self, context: dict = None) -> str:	
+	def _context_to_string(self, context: dict = None) -> str:	
 		"""Convert context data to a formatted string for use in LLM prompts."""
 
 		if context is None:
@@ -185,30 +184,30 @@ class Context:
 # - Post agent's long running notes
 #-------------------------------------------------------------------
 
-def get_notes(self) -> str:
-	"""Read the notes.txt file and return its contents as a string."""
-	try:
-		if not self.notes_path.exists():
-			logger.info(f"Notes file not found at {self.notes_path}")
-			return ""
-				
-		with open(self.notes_path, 'r') as f:
-			content = f.read()
-		if content.strip():
-			return "<your_notes>\n" + content + "\n</your_notes>"
-		else:
+	def _get_notes(self) -> str:
+		"""Read the notes.txt file and return its contents as a string."""
+		try:
+			if not self.notes_path.exists():
+				logger.info(f"Notes file not found at {self.notes_path}")
+				return ""
+					
+			with open(self.notes_path, 'r') as f:
+				content = f.read()
+			if content.strip():
+				return "<your_notes>\n" + content + "\n</your_notes>"
+			else:
+				return "<your_notes>\nNo previous notes\n</your_notes>"
+
+		except Exception as e:
+			logger.error(f"Error reading notes: {e}")
 			return "<your_notes>\nNo previous notes\n</your_notes>"
 
-	except Exception as e:
-		logger.error(f"Error reading notes: {e}")
-		return "<your_notes>\nNo previous notes\n</your_notes>"
-
-def save_notes(self, notes_content: str) -> None:
-	"""Save llm generated notes to the notes.txt file."""
-	try:
-		with open(self.notes_path, 'w') as f:
-			f.write(notes_content)
-		logger.info(f"Notes saved to {self.notes_path}")
-		
-	except Exception as e:
-		logger.error(f"Error saving notes to {self.notes_path}: {e}")
+	def save_notes(self, notes_content: str) -> None:
+		"""Save llm generated notes to the notes.txt file."""
+		try:
+			with open(self.notes_path, 'w') as f:
+				f.write(notes_content)
+			logger.info(f"Notes saved to {self.notes_path}")
+			
+		except Exception as e:
+			logger.error(f"Error saving notes to {self.notes_path}: {e}")
