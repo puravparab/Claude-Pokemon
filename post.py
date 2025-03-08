@@ -121,27 +121,29 @@ class PostAgent:
 					self.context = Context()
 					logger.info("Context loaded")
 
-					# Do not call the llm if recent context and posts are empty
-					if self.context.context_str != "":
-						combined_context = self.context.context_str + self.context.posts_str
-						# Send to llm for post creating
+					if self.context.context_str != "": # Do not call the llm if recent context and posts are empty
+						# Create a commentary using context from monitor agent and notes of the post agents
+						combined_context = self.context.context_str + self.context.notes
 						analysis = self.post_analyzer.analyze_context(combined_context)
-						# Save post to context/posts and get image path
-						image_path = self.context.save_post(analysis)
+						image_path = self.context.save_post(analysis) # Save post to context/posts and get image path
 
-						# Post to Twitter if enabled and the LLM decides to post
-						if (
+						# Post to X/Twitter if conditions are satisfied
+						if ( 
 							self.x_enabled and 
 							hasattr(self, 'x_client') and 
 							analysis.get("post", False) and 
 							analysis.get("commentary", False) and
-							self.context.posts_str != ""
+							self.context.notes != "" # If the post agents has created a commentary with not notes do not post to twitter
 						):
 							success = self.x_client.post(analysis["commentary"], image_path)
 							if success:
 								logger.info(f"Posted to X/Twitter: {analysis['commentary'][:30]}...")
 							else:
 								logger.warning("Failed to post to X/Twitter")
+
+						# Post agents updates it's notes
+						combined_context = self.context.context_str + self.context.notes
+						new_notes = self.post_analyzer.update_notes(combined_context)
 
 					# Wait until next posting check
 					time.sleep(self.post_interval_secs)
