@@ -122,9 +122,8 @@ class PostAgent:
 					logger.info("Context loaded")
 
 					# Do not call the llm if recent context and posts are empty
-					if self.context.context_str != "" or self.context.posts_str != "":
+					if self.context.context_str != "":
 						combined_context = self.context.context_str + self.context.posts_str
-						# print(combined_context)
 						# Send to llm for post creating
 						analysis = self.post_analyzer.analyze_context(combined_context)
 						# Save post to context/posts and get image path
@@ -135,7 +134,8 @@ class PostAgent:
 							self.x_enabled and 
 							hasattr(self, 'x_client') and 
 							analysis.get("post", False) and 
-							analysis.get("commentary", False)
+							analysis.get("commentary", False) and
+							self.context.posts_str != ""
 						):
 							success = self.x_client.post(analysis["commentary"], image_path)
 							if success:
