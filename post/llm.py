@@ -5,6 +5,7 @@ import requests
 import tiktoken
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Tuple
+
 from .prompts import ANALYZE_CONTEXT_PROMPT, UPDATE_NOTES_PROMPT
 from .validate import validate_response, sanitize_results, get_default_response, count_tokens
 
