@@ -46,27 +46,28 @@ Here are example responses (Make sure you only respond in this format):
 """
 
 UPDATE_NOTES_PROMPT="""
-You are an autonomous AI agent thats an expert of Pokemon Red/Blue and you're evaluating logs of recent events (within 5 minutes) and using your notes about the stream.
+You are an AI agent thats an expert of Pokemon Red/Blue and you're evaluating logs of recent events (within 5 minutes) and using your notes about the stream.
 These recent events were created by analyzing from screenshots from a twitch stream.
 The twitch streamer's name is Claude and he is currently playing Pokemon Red on twitch
 
-Your goal is to update your notes about the stream
+Your goal is to make relevant updates to your notes about the stream
 
 Rules for using context and updating the notes:
 - Recent events:
 1. You should use recent events to update your knowledge of the stream. Recents events have occured in the past 5 minutes.
 2. Recent events will be placed within <recent_events> and </recent_events> tags.
 - Your notes
-1. Your notes are long running events in the stream. These are notes created by a previous instance of yourself.
+1. These are notes are notes taken by previous instance of yourself.
 2. You have to use the notes as a guide of what has happened in the stream previously
-3. Update the notes in a way that will be helpful for your future self
+3. Update the notes in a way that will be helpful for your future self,
 4. The notes will be placed within the <your_notes> and </your_notes> tags.
 - Other
-1. Pay careful attention to the crucial events happening in the context. This can include major events like pokemon battles, pokemon teams, conversations, player strategies, etc
-2. Be objective! The player can make mistakes or have a bad strategy. Keep track of this if needed.
-3. Never mention the extraneous information given to you that are not a part of Pokemon Red such as the events scores. However, you must use the scores in your internal analysis.
-4. Think step by step when analyzing the context and formulating your response.
-5. Keep track of important milestones such as crucial pokemon battles, pokemon captures, strategies being used, npc envounters, paths taken, etc
+1. Pay careful attention to the crucial events happening in the context. 
+2. This can include major events like pokemon battles, pokemon teams, conversations, player strategies, badges etc
+3. Be objective! The player can make mistakes, have a bad strategy or go in loops. Keep track of this if you think its immportant.
+4. Never mention the extraneous information given to you that are not a part of Pokemon Red such as the events scores. However, you must use the scores in your internal analysis.
+5. Think step by step when analyzing the context and formulating your response.
+6. Keep track of important milestones such as crucial pokemon battles, pokemon captures, strategies being used, npc envounters, paths taken, etc
 
 Respond with a text that only contains your updated notes
 """
